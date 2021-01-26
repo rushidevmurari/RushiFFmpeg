@@ -36,7 +36,7 @@ import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_SUCCESS;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ImageButton reverse,slow,fast,videoToAudio;
+    private ImageButton reverse,slow,fast,videoToAudio,RemoveAudio;
     private Button selectVideo,selectAudio;
     private TextView tvLeft,tvRight;
     private ProgressDialog progressDialog;
@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
         selectAudio = (Button) findViewById(R.id.selectaudio);
         fast = (ImageButton) findViewById(R.id.fast);
         videoToAudio = (ImageButton) findViewById(R.id.videotomp3);
+        RemoveAudio = (ImageButton) findViewById(R.id.audiodisa);
         videoView=(VideoView) findViewById(R.id.layout_movie_wrapper);
 
         Toast.makeText(MainActivity.this,"DialogBox_Called",Toast.LENGTH_SHORT).show();
@@ -174,6 +175,20 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }else
                     Toast.makeText(MainActivity.this, "Please upload video", Toast.LENGTH_SHORT).show();
+            }
+        });
+        RemoveAudio.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(video_url != null){
+                    try{
+                        RemoveAudio(rangeSeekBar.getSelectedMinValue().intValue() * 1000,rangeSeekBar.getSelectedMaxValue().intValue() * 1000);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        Toast.makeText(MainActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                }else
+                    Toast.makeText(MainActivity.this,"Please upload video", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -331,14 +346,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private  void audioTriming(int startMs, int endMs) throws Exception {
 
-        progressDialog.show();
-
-        final String filePathh;
-        String fileprefix = "audioTriming";
-        String fileExtn = ".mp3";
-    }
 
     /**
      Method for creating slow motion video for specific part of the video
@@ -419,11 +427,11 @@ public class MainActivity extends AppCompatActivity {
 
             ContentValues values = new ContentValues();
             values.put(MediaStore.Audio.Media.RELATIVE_PATH, "Movies/" + "Folder");
-            values.put(MediaStore.Video.Media.TITLE, filePrefix+System.currentTimeMillis());
-            values.put(MediaStore.Video.Media.DISPLAY_NAME, filePrefix+System.currentTimeMillis()+fileExtn);
-            values.put(MediaStore.Audio.Media.MIME_TYPE, "video/mp3");
-            values.put(MediaStore.Video.Media.DATE_ADDED, System.currentTimeMillis() / 1000);
-            values.put(MediaStore.Video.Media.DATE_TAKEN, System.currentTimeMillis());
+            values.put(MediaStore.Audio.Media.TITLE, filePrefix+System.currentTimeMillis());
+            values.put(MediaStore.Audio.Media.DISPLAY_NAME, filePrefix+System.currentTimeMillis()+fileExtn);
+            values.put(MediaStore.Audio.Media.MIME_TYPE, "audio/mp3");
+            values.put(MediaStore.Audio.Media.DATE_ADDED, System.currentTimeMillis() / 1000);
+            values.put(MediaStore.Audio.Media.DATE_TAKEN, System.currentTimeMillis());
             Uri uri = getContentResolver().insert(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, values);
             File file = FileUtils.getFileFromUri(this, uri);
             filePath = file.getAbsolutePath();
@@ -444,7 +452,7 @@ public class MainActivity extends AppCompatActivity {
 
         String exe;
 
-        exe ="-y -i  " +video_url+" -vn -ar 44100 -ac 2 -ab 320 "+"-b:a 128k -acodec mp3 -crf 0 -preset superfast "+filePath;
+        exe ="-y -i  " +video_url+" -vn -ar 44100 -ac 2 -ab 320k "+"-b:a 128k -acodec mp3 -crf 0 -preset superfast "+filePath;
 
         String finalFilePath = filePath;
         String finalFilePath1 = filePath;
@@ -469,6 +477,67 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+    private void RemoveAudio(int startMs, int endMs) throws Exception{
+
+        progressDialog.show();
+
+        final String filePath;
+        String filePrefix = "RemoveAudio";
+        String fileExtn = ".mp4";
+
+
+
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q)
+        {
+       ContentValues contentValues = new ContentValues();
+       contentValues.put(MediaStore.Video.Media.RELATIVE_PATH,"Movies/" + "Folder");
+       contentValues.put(MediaStore.Video.Media.TITLE,filePrefix+System.currentTimeMillis());
+       contentValues.put(MediaStore.Video.Media.DISPLAY_NAME,filePrefix+System.currentTimeMillis()+fileExtn);
+       contentValues.put(MediaStore.Video.Media.MIME_TYPE,"Video/mp4");
+       contentValues.put(MediaStore.Video.Media.DATE_ADDED,System.currentTimeMillis() / 1000);
+       contentValues.put(MediaStore.Video.Media.DATE_TAKEN,System.currentTimeMillis());
+       Uri uri = getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues);
+       File file = FileUtils.getFileFromUri(this,uri);
+       filePath = file.getAbsolutePath();
+        }
+        else {
+            //This else statement will work for devices with Android version lower than 10
+            //Here, "app_folder" is the path to your app's root directory in device storage
+            File dest = new File(new File(app_folder), filePrefix + fileExtn);
+            int fileNo = 0;
+            //check if the file name previously exist. Since we don't want to oerwrite the video files
+            while (dest.exists()) {
+                fileNo++;
+                dest = new File(new File(app_folder), filePrefix + fileNo + fileExtn);
+            }
+            //Get the filePath once the file is successfully created.
+            filePath = dest.getAbsolutePath();
+        }
+        String cmd;
+
+        cmd = " -y -i " +video_url+ " -an  "+"-b:v 2097k -vcodec mpeg4 -crf 0 -preset superfast "+filePath;
+
+
+        long executionId = FFmpeg.executeAsync(cmd, new ExecuteCallback() {
+            @Override
+            public void apply(long executionId, int returnCode) {
+                if (returnCode == RETURN_CODE_SUCCESS)
+                {
+                    videoView.setVideoURI(Uri.parse(filePath));
+
+                    video_url = filePath;
+
+                    videoView.start();
+                    progressDialog.dismiss();
+                }else if (returnCode == RETURN_CODE_CANCEL) {
+                    Log.i(Config.TAG, "Async command execution cancelled by user.");
+                } else {
+                    Log.i(Config.TAG, String.format("Async command execution failed with returnCode=%d.", returnCode));
+                }
+            }
+        });
+
     }
     private void reverse(int startMs, int endMs) throws Exception {
 
