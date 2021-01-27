@@ -3,6 +3,7 @@ package com.easymp3cutter.rushiffmpeg;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.inputmethodservice.ExtractEditText;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
@@ -36,7 +37,7 @@ import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_SUCCESS;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ImageButton reverse,slow,fast,videoToAudio,RemoveAudio;
+    private ImageButton reverse,slow,fast,videoToAudio,RemoveAudio,ExtractImage,CompressVideo,LowResolution,HighResolution;
     private Button selectVideo,selectAudio;
     private TextView tvLeft,tvRight;
     private ProgressDialog progressDialog;
@@ -71,6 +72,10 @@ public class MainActivity extends AppCompatActivity {
         fast = (ImageButton) findViewById(R.id.fast);
         videoToAudio = (ImageButton) findViewById(R.id.videotomp3);
         RemoveAudio = (ImageButton) findViewById(R.id.audiodisa);
+        ExtractImage = (ImageButton) findViewById(R.id.extract);
+        CompressVideo = (ImageButton) findViewById(R.id.compressvideo);
+        LowResolution = (ImageButton) findViewById(R.id.lowreso);
+        HighResolution = (ImageButton) findViewById(R.id.highreso);
         videoView=(VideoView) findViewById(R.id.layout_movie_wrapper);
 
         Toast.makeText(MainActivity.this,"DialogBox_Called",Toast.LENGTH_SHORT).show();
@@ -192,6 +197,70 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        ExtractImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (video_url != null)
+                {
+                    try{
+                        ExtractImage(rangeSeekBar.getSelectedMinValue().intValue() * 1000,rangeSeekBar.getSelectedMaxValue().intValue() * 1000);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        Toast.makeText(MainActivity.this,e.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                }else
+                    Toast.makeText(MainActivity.this, "Plese upload video", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        CompressVideo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(video_url != null)
+                {
+                    try {
+                        CompressVideo(rangeSeekBar.getSelectedMinValue().intValue() * 1000,rangeSeekBar.getSelectedMaxValue().intValue() * 1000);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        Toast.makeText(MainActivity.this,e.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                }else
+                    Toast.makeText(MainActivity.this,"Plesse upload video", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        LowResolution.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(video_url != null)
+                {
+                    try {
+                        LowResolution(rangeSeekBar.getSelectedMinValue().intValue() * 1000,rangeSeekBar.getSelectedMaxValue().intValue() * 1000);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        Toast.makeText(MainActivity.this,e.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                }else
+                    Toast.makeText(MainActivity.this, "Please uppload video", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        HighResolution.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(video_url != null)
+                {
+                    try {
+                        HighResolution(rangeSeekBar.getSelectedMinValue().intValue() * 1000,rangeSeekBar.getSelectedMaxValue().intValue() * 1000);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        Toast.makeText(MainActivity.this,e.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                }else
+                    Toast.makeText(MainActivity.this, "Please upload vide", Toast.LENGTH_SHORT).show();
+            }
+        });
+
 
 
 
@@ -256,6 +325,235 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void HighResolution(int startsMs, int ensMs) throws Exception {
+
+        progressDialog.show();
+        final String filePath;
+        String filePrefix = "HighResolution";
+        String fileExtn = ".mp4";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+        {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/" + "Folder");
+            contentValues.put(MediaStore.Video.Media.TITLE,filePrefix+System.currentTimeMillis());
+            contentValues.put(MediaStore.Video.Media.DISPLAY_NAME,filePrefix+System.currentTimeMillis() +fileExtn);
+            contentValues.put(MediaStore.Video.Media.MIME_TYPE,"video/mp4");
+            contentValues.put(MediaStore.Video.Media.DATE_ADDED,System.currentTimeMillis() / 1000);
+            contentValues.put(MediaStore.Video.Media.DATE_TAKEN,System.currentTimeMillis());
+            Uri uri = getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues);
+
+            File file = FileUtils.getFileFromUri(this,uri);
+            filePath = file.getAbsolutePath();
+        }else {
+            File dest = new File(new File(app_folder), filePrefix + fileExtn);
+            int fileNo = 0;
+
+            while (dest.exists())
+            {
+                dest = new File(new File(app_folder), filePrefix + fileNo + fileExtn);
+            }
+            filePath = dest.getAbsolutePath();
+        }
+        String cmd;
+        cmd = " -y -i " +video_url+ " -vf scale=1280:-1 -c:v "+"-b:v -vcodec mpeg4 -crf 0 -preset superfast "+filePath;
+
+        long executionId = FFmpeg.executeAsync(cmd, new ExecuteCallback() {
+            @Override
+            public void apply(long executionId, int returnCode) {
+                if (returnCode == RETURN_CODE_SUCCESS)
+                {
+                    videoView.setVideoURI(Uri.parse(filePath));
+
+                    video_url = filePath;
+
+                    videoView.start();
+                    progressDialog.dismiss();
+                }else if (returnCode == RETURN_CODE_CANCEL) {
+                    Log.i(Config.TAG, "Async command execution cancelled by user.");
+                } else {
+                    Log.i(Config.TAG, String.format("Async command execution failed with returnCode=%d.", returnCode));
+                }
+            }
+        });
+    }
+
+    private void LowResolution(int startMs, int endMs) throws Exception {
+
+        progressDialog.show();
+        final String filePath;
+        String filePrefix = "LowResolution";
+        String fileExtn = ".mp4";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+        {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/" + "Folder");
+            contentValues.put(MediaStore.Video.Media.TITLE,filePrefix+System.currentTimeMillis());
+            contentValues.put(MediaStore.Video.Media.DISPLAY_NAME,filePrefix+System.currentTimeMillis() +fileExtn);
+            contentValues.put(MediaStore.Video.Media.MIME_TYPE,"video/mp4");
+            contentValues.put(MediaStore.Video.Media.DATE_ADDED,System.currentTimeMillis() /1000);
+            contentValues.put(MediaStore.Video.Media.DATE_TAKEN,System.currentTimeMillis());
+            Uri uri = getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,contentValues);
+
+            File file = FileUtils.getFileFromUri(this,uri);
+            filePath = file.getAbsolutePath();
+
+        }else {
+            File dest = new File(new File(app_folder), filePrefix + fileExtn);
+            int fileNo = 0;
+
+            while (dest.exists())
+            {
+                fileNo++;
+                dest = new File(new File(app_folder), filePrefix + fileNo +fileExtn);
+            }
+            filePath = dest.getAbsolutePath();
+        }
+        String cmd;
+
+        cmd = " -y -i " +video_url+ " -vf scale=360:-1 -c:v "+"-b:v -vcodec mpeg4 -crf 0 -preset superfast "+filePath;
+
+        long executionId = FFmpeg.executeAsync(cmd, new ExecuteCallback() {
+            @Override
+            public void apply(long executionId, int returnCode) {
+
+                if (returnCode == RETURN_CODE_SUCCESS)
+                {
+                    videoView.setVideoURI(Uri.parse(filePath));
+
+                    video_url =filePath;
+
+                    videoView.start();
+
+                    progressDialog.dismiss();
+                }else if (returnCode == RETURN_CODE_CANCEL) {
+                    Log.i(Config.TAG, "Async command execution cancelled by user.");
+                } else {
+                    Log.i(Config.TAG, String.format("Async command execution failed with returnCode=%d.", returnCode));
+                }
+
+            }
+        });
+
+    }
+
+    private void ExtractImage(int startMs, int endMs) throws Exception {
+
+
+        progressDialog.show();
+        final String filePath;
+        String filePrefix = "ExtractImage";
+        String fileExtn = ".jpg";
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+        {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MediaStore.Images.Media.RELATIVE_PATH,"Movies/" + "Folder");
+            contentValues.put(MediaStore.Images.Media.TITLE,filePrefix+System.currentTimeMillis());
+            contentValues.put(MediaStore.Images.Media.DISPLAY_NAME,filePrefix+System.currentTimeMillis()+fileExtn);
+            contentValues.put(MediaStore.Images.Media.MIME_TYPE,"image/jpg");
+            contentValues.put(MediaStore.Images.Media.DATE_ADDED,System.currentTimeMillis() / 1000);
+            contentValues.put(MediaStore.Images.Media.DATE_TAKEN,System.currentTimeMillis());
+            Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,contentValues);
+
+            File file = FileUtils.getFileFromUri(this,uri);
+            filePath=file.getAbsolutePath();
+
+        }else {
+            //This else statement will work for devices with Android version lower than 10
+            //Here, "app_folder" is the path to your app's root directory in device storage
+            File dest = new File(new File(app_folder), filePrefix + fileExtn);
+            int fileNo = 0;
+            //check if the file name previously exist. Since we don't want to oerwrite the video files
+            while (dest.exists()) {
+                fileNo++;
+                dest = new File(new File(app_folder), filePrefix + fileNo + fileExtn);
+            }
+            //Get the filePath once the file is successfully created.
+            filePath = dest.getAbsolutePath();
+        }
+        String cmd;
+
+        cmd = "-y -i  " +video_url+ " -vframes:v 1 -ss 01:25:45 "+" outout.jpg -crf 0 -preset superfast "+filePath;
+
+
+
+        long executionId = FFmpeg.executeAsync(cmd, new ExecuteCallback() {
+            @Override
+            public void apply(long executionId, int returnCode) {
+
+                if (returnCode == RETURN_CODE_SUCCESS)
+                {
+                    videoView.setVideoURI(Uri.parse(filePath));
+
+                    video_url = filePath;
+
+                    videoView.start();
+
+                    progressDialog.dismiss();
+                }else if (returnCode == RETURN_CODE_CANCEL) {
+                    Log.i(Config.TAG, "Async command execution cancelled by user.");
+                } else {
+                    Log.i(Config.TAG, String.format("Async command execution failed with returnCode=%d.", returnCode));
+                }
+            }
+        });
+    }
+
+    private void CompressVideo(int startMs, int endMs) throws Exception {
+
+        progressDialog.show();
+        final String filePath;
+        String filePrefix = "CompressVideo";
+        String fileExtn = ".Mp4";
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+        {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/" + "Folder");
+            contentValues.put(MediaStore.Video.Media.TITLE,filePrefix+System.currentTimeMillis());
+            contentValues.put(MediaStore.Video.Media.DISPLAY_NAME,filePrefix+System.currentTimeMillis() +fileExtn);
+            contentValues.put(MediaStore.Video.Media.MIME_TYPE,"video/mp4");
+            contentValues.put(MediaStore.Video.Media.DATE_ADDED,System.currentTimeMillis() / 1000);
+            contentValues.put(MediaStore.Video.Media.DATE_TAKEN,System.currentTimeMillis());
+            Uri uri = getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,contentValues);
+
+            File file = FileUtils.getFileFromUri(this,uri);
+            filePath = file.getAbsolutePath();
+        }else
+        {
+            File dest = new File(new File(app_folder), filePrefix + fileExtn);
+            int fileNo = 0;
+            while (dest.exists())
+            {
+                fileNo++;
+                dest = new File(new File(app_folder), filePrefix + fileNo + fileExtn);
+            }
+            filePath = dest.getAbsolutePath();
+        }
+
+        String cmd;
+
+        cmd = " -y -i " +video_url+ " -vf scale=1280:-1 -c:v "+"-b:v -vcodec mpeg4 -crf 0 -preset superfast "+filePath;
+
+        long executionId = FFmpeg.executeAsync(cmd, new ExecuteCallback() {
+            @Override
+            public void apply(long executionId, int returnCode) {
+                if (returnCode == RETURN_CODE_SUCCESS)
+                {
+                    videoView.setVideoURI(Uri.parse(filePath));
+
+                    video_url = filePath;
+
+                    videoView.start();
+                    progressDialog.dismiss();
+                }else if (returnCode == RETURN_CODE_CANCEL) {
+                    Log.i(Config.TAG, "Async command execution cancelled by user.");
+                } else {
+                    Log.i(Config.TAG, String.format("Async command execution failed with returnCode=%d.", returnCode));
+                }
+            }
+        });
+
+    }
 
 
     /**
