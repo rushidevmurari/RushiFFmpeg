@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private Runnable r;
     private RangeSeekBar rangeSeekBar;
     private static final String root= Environment.getExternalStorageDirectory().toString();
-    private static final String app_folder=root+"/Movies/";
+    private static final String app_folder=root+"/DCIM/";
 
     public MainActivity() {
     }
@@ -374,30 +374,28 @@ public class MainActivity extends AppCompatActivity {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
         {
             ContentValues contentValues = new ContentValues();
-            contentValues.put(MediaStore.Video.Media.RELATIVE_PATH, "Movies" + "Folder");
-            contentValues.put(MediaStore.Video.Media.TITLE,filePrefix+System.currentTimeMillis());
-            contentValues.put(MediaStore.Video.Media.DISPLAY_NAME,filePrefix+System.currentTimeMillis() +fileExtn);
-            contentValues.put(MediaStore.Video.Media.MIME_TYPE,"video/mp4");
-            contentValues.put(MediaStore.Video.Media.DATE_ADDED,System.currentTimeMillis() /1000);
-            contentValues.put(MediaStore.Video.Media.DATE_TAKEN,System.currentTimeMillis());
+            contentValues.put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/" + "Folder");
+            contentValues.put(MediaStore.Video.Media.TITLE, filePrefix+System.currentTimeMillis());
+            contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, filePrefix+System.currentTimeMillis()+fileExtn);
+            contentValues.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
+            contentValues.put(MediaStore.Video.Media.DATE_ADDED, System.currentTimeMillis() /1000);
+            contentValues.put(MediaStore.Video.Media.DATE_TAKEN, System.currentTimeMillis());
             Uri uri = getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues);
 
             File file = FileUtils.getFileFromUri(this, uri);
             filePath = file.getAbsolutePath();
-        }else
-        {
+        }else {
             File dest = new File(new File(app_folder), filePrefix + fileExtn);
             int fileNo = 0;
 
-            while (dest.exists())
-            {
+            while (dest.exists()) {
                 fileNo++;
                 dest = new File(new File(app_folder), filePrefix + fileNo + fileExtn);
 
             }
             filePath = dest.getAbsolutePath();
 
-
+        }
 
             String[] Command = {"-ss", "" + startMs / 1000, "-y", "-i", video_url, "-t", "" + (endMs - startMs) / 1000,"-vcodec", "mpeg4", "-b:v", "2097152", "-b:a", "48000", "-ac", "2", "-ar", "22050", filePath};
 
@@ -426,7 +424,7 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
-    }
+
 private void VideoToGif(int startMs, int endMs) throws Exception {
 
         progressDialog.show();
@@ -437,8 +435,8 @@ private void VideoToGif(int startMs, int endMs) throws Exception {
         {
             ContentValues contentValues = new ContentValues();
             contentValues.put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/" + "Folder");
-            contentValues.put(MediaStore.Video.Media.TITLE,filePrefix+System.currentTimeMillis());
-            contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, filePrefix+System.currentTimeMillis() +fileExtn);
+            contentValues.put(MediaStore.Video.Media.TITLE, filePrefix+System.currentTimeMillis());
+            contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, filePrefix+System.currentTimeMillis()+fileExtn);
             contentValues.put(MediaStore.Video.Media.MIME_TYPE, "video/gif");
             contentValues.put(MediaStore.Video.Media.DATE_ADDED, System.currentTimeMillis() /1000);
             contentValues.put(MediaStore.Video.Media.DATE_TAKEN, System.currentTimeMillis());
@@ -446,20 +444,20 @@ private void VideoToGif(int startMs, int endMs) throws Exception {
 
             File file = FileUtils.getFileFromUri(this,uri);
             filePath = file.getAbsolutePath();
-        }else  {
-            File dest = new File(new File(app_folder),filePrefix + fileExtn);
+        }else {
+            File dest = new File(new File(app_folder), filePrefix + fileExtn);
             int fileNo = 0;
 
-            while (dest.exists())
-            {
+            while (dest.exists()) {
                 fileNo++;
                 dest = new File(new File(app_folder), filePrefix + fileNo + fileExtn);
             }
             filePath = dest.getAbsolutePath();
+        }
             String cmd;
 
 
-            cmd ="-y -i  " +video_url+" -vf scale=512:-1 -an -ss 00:00:03 -to 00:00:10 "+" -vcodec gif -crf 0 -preset superfast "+filePath;
+            cmd ="-y -i  " +video_url+" -vf scale=512:-1 -an -ss 00:00:03 -to 00:00:10 "+" -vcodec gif -crf 0 -preset superfast " +filePath;
 
 
             long executionId = FFmpeg.executeAsync(cmd, new ExecuteCallback() {
@@ -484,22 +482,21 @@ private void VideoToGif(int startMs, int endMs) throws Exception {
                 }
             });
         }
-}
+
     private void HighResolution(int startsMs, int ensMs) throws Exception {
 
         progressDialog.show();
         final String filePath;
         String filePrefix = "HighResolution";
         String fileExtn = ".mp4";
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-        {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
             ContentValues contentValues = new ContentValues();
             contentValues.put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/" + "Folder");
-            contentValues.put(MediaStore.Video.Media.TITLE,filePrefix+System.currentTimeMillis());
-            contentValues.put(MediaStore.Video.Media.DISPLAY_NAME,filePrefix+System.currentTimeMillis() +fileExtn);
-            contentValues.put(MediaStore.Video.Media.MIME_TYPE,"video/mp4");
-            contentValues.put(MediaStore.Video.Media.DATE_ADDED,System.currentTimeMillis() / 1000);
-            contentValues.put(MediaStore.Video.Media.DATE_TAKEN,System.currentTimeMillis());
+            contentValues.put(MediaStore.Video.Media.TITLE, filePrefix+System.currentTimeMillis());
+            contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, filePrefix+System.currentTimeMillis()+fileExtn);
+            contentValues.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
+            contentValues.put(MediaStore.Video.Media.DATE_ADDED, System.currentTimeMillis() /1000);
+            contentValues.put(MediaStore.Video.Media.DATE_TAKEN, System.currentTimeMillis());
             Uri uri = getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues);
 
             File file = FileUtils.getFileFromUri(this,uri);
@@ -543,15 +540,14 @@ private void VideoToGif(int startMs, int endMs) throws Exception {
         final String filePath;
         String filePrefix = "LowResolution";
         String fileExtn = ".mp4";
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-        {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
             ContentValues contentValues = new ContentValues();
             contentValues.put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/" + "Folder");
-            contentValues.put(MediaStore.Video.Media.TITLE,filePrefix+System.currentTimeMillis());
-            contentValues.put(MediaStore.Video.Media.DISPLAY_NAME,filePrefix+System.currentTimeMillis() +fileExtn);
-            contentValues.put(MediaStore.Video.Media.MIME_TYPE,"video/mp4");
-            contentValues.put(MediaStore.Video.Media.DATE_ADDED,System.currentTimeMillis() /1000);
-            contentValues.put(MediaStore.Video.Media.DATE_TAKEN,System.currentTimeMillis());
+            contentValues.put(MediaStore.Video.Media.TITLE, filePrefix+System.currentTimeMillis());
+            contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, filePrefix+System.currentTimeMillis()+fileExtn);
+            contentValues.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
+            contentValues.put(MediaStore.Video.Media.DATE_ADDED, System.currentTimeMillis() /1000);
+            contentValues.put(MediaStore.Video.Media.DATE_TAKEN, System.currentTimeMillis());
             Uri uri = getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,contentValues);
 
             File file = FileUtils.getFileFromUri(this,uri);
@@ -603,19 +599,21 @@ private void VideoToGif(int startMs, int endMs) throws Exception {
         final String filePath;
         String filePrefix = "ExtractImage";
         String fileExtn = ".jpg";
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-        {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
             ContentValues contentValues = new ContentValues();
-            contentValues.put(MediaStore.Images.Media.RELATIVE_PATH,"Movies/" + "Folder");
-            contentValues.put(MediaStore.Images.Media.TITLE,filePrefix+System.currentTimeMillis());
-            contentValues.put(MediaStore.Images.Media.DISPLAY_NAME,filePrefix+System.currentTimeMillis()+fileExtn);
-            contentValues.put(MediaStore.Images.Media.MIME_TYPE,"image/jpg");
-            contentValues.put(MediaStore.Images.Media.DATE_ADDED,System.currentTimeMillis() / 1000);
-            contentValues.put(MediaStore.Images.Media.DATE_TAKEN,System.currentTimeMillis());
+            contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/" + "Folder");
+            contentValues.put(MediaStore.Images.Media.TITLE, filePrefix+System.currentTimeMillis());
+            contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, filePrefix+System.currentTimeMillis()+ "%03d" +fileExtn);
+            contentValues.put(MediaStore.Images.Media.MIME_TYPE, "image/jpg");
+            contentValues.put(MediaStore.Images.Media.DATE_ADDED, System.currentTimeMillis() /1000);
+            contentValues.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
             Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,contentValues);
 
             File file = FileUtils.getFileFromUri(this,uri);
             filePath=file.getAbsolutePath();
+
+
+
 
         }else {
             //This else statement will work for devices with Android version lower than 10
@@ -669,15 +667,14 @@ private void VideoToGif(int startMs, int endMs) throws Exception {
         String filePrefix = "CompressVideo";
         String fileExtn = ".Mp4";
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-        {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
             ContentValues contentValues = new ContentValues();
             contentValues.put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/" + "Folder");
-            contentValues.put(MediaStore.Video.Media.TITLE,filePrefix+System.currentTimeMillis());
-            contentValues.put(MediaStore.Video.Media.DISPLAY_NAME,filePrefix+System.currentTimeMillis() +fileExtn);
-            contentValues.put(MediaStore.Video.Media.MIME_TYPE,"video/mp4");
-            contentValues.put(MediaStore.Video.Media.DATE_ADDED,System.currentTimeMillis() / 1000);
-            contentValues.put(MediaStore.Video.Media.DATE_TAKEN,System.currentTimeMillis());
+            contentValues.put(MediaStore.Video.Media.TITLE, filePrefix+System.currentTimeMillis());
+            contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, filePrefix+System.currentTimeMillis()+fileExtn);
+            contentValues.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
+            contentValues.put(MediaStore.Video.Media.DATE_ADDED, System.currentTimeMillis() / 1000);
+            contentValues.put(MediaStore.Video.Media.DATE_TAKEN, System.currentTimeMillis());
             Uri uri = getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,contentValues);
 
             File file = FileUtils.getFileFromUri(this,uri);
@@ -749,7 +746,7 @@ private void VideoToGif(int startMs, int endMs) throws Exception {
             valuesvideos.put(MediaStore.Video.Media.TITLE, filePrefix+System.currentTimeMillis());
             valuesvideos.put(MediaStore.Video.Media.DISPLAY_NAME, filePrefix+System.currentTimeMillis()+fileExtn);
             valuesvideos.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
-            valuesvideos.put(MediaStore.Video.Media.DATE_ADDED, System.currentTimeMillis() / 1000);
+            valuesvideos.put(MediaStore.Video.Media.DATE_ADDED, System.currentTimeMillis() /1000);
             valuesvideos.put(MediaStore.Video.Media.DATE_TAKEN, System.currentTimeMillis());
             Uri uri = getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, valuesvideos);
 
@@ -883,18 +880,19 @@ private void VideoToGif(int startMs, int endMs) throws Exception {
     private void videoToAudio(int startMs, int endMs) throws Exception {
 
         progressDialog.show();
+        final String filePath;
         String filePrefix = "videoToAudio";
         String fileExtn = ".mp3";
 
-        String filePath = null;
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
 
             ContentValues values = new ContentValues();
-            values.put(MediaStore.Audio.Media.RELATIVE_PATH, "Movies/" + "Folder");
+            values.put(MediaStore.Audio.Media.RELATIVE_PATH, "Music/" + "Folder");
             values.put(MediaStore.Audio.Media.TITLE, filePrefix+System.currentTimeMillis());
             values.put(MediaStore.Audio.Media.DISPLAY_NAME, filePrefix+System.currentTimeMillis()+fileExtn);
             values.put(MediaStore.Audio.Media.MIME_TYPE, "audio/mp3");
-            values.put(MediaStore.Audio.Media.DATE_ADDED, System.currentTimeMillis() / 1000);
+            values.put(MediaStore.Audio.Media.DATE_ADDED, System.currentTimeMillis() /1000);
             values.put(MediaStore.Audio.Media.DATE_TAKEN, System.currentTimeMillis());
             Uri uri = getContentResolver().insert(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, values);
             File file = FileUtils.getFileFromUri(this, uri);
@@ -916,18 +914,18 @@ private void VideoToGif(int startMs, int endMs) throws Exception {
 
         String exe;
 
-        exe ="-y -i  " +video_url+" -vn -ar 44100 -ac 2 -ab 320k "+"-b:a 128k -acodec mp3 -crf 0 -preset superfast "+filePath;
+       // exe ="-y -i  " +video_url+" -vn -ar 44100 -ac 2 -ab 320k "+"-b:a 128k -acodec mp3 -crf 0 -preset superfast "+filePath;
 
-        String finalFilePath = filePath;
-        String finalFilePath1 = filePath;
-        long executionId = FFmpeg.executeAsync(exe, new ExecuteCallback() {
+        String[] complexCommand = {"-y", "-i", video_url, "-vn", "-ar", "44100", "-ac", "2", "-b:a", "256k", "-f", "mp3", filePath};
+
+        long executionId = FFmpeg.executeAsync(complexCommand, new ExecuteCallback() {
             @Override
             public void apply(long executionId, int returnCode) {
                 if (returnCode == RETURN_CODE_SUCCESS)
                 {
-                    videoView.setVideoURI(Uri.parse(finalFilePath));
+                    videoView.setVideoURI(Uri.parse(filePath));
 
-                    video_url= finalFilePath1;
+                    video_url= filePath;
 
                     videoView.start();
 
@@ -952,15 +950,14 @@ private void VideoToGif(int startMs, int endMs) throws Exception {
 
 
 
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q)
-        {
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
        ContentValues contentValues = new ContentValues();
-       contentValues.put(MediaStore.Video.Media.RELATIVE_PATH,"Movies/" + "Folder");
-       contentValues.put(MediaStore.Video.Media.TITLE,filePrefix+System.currentTimeMillis());
-       contentValues.put(MediaStore.Video.Media.DISPLAY_NAME,filePrefix+System.currentTimeMillis()+fileExtn);
-       contentValues.put(MediaStore.Video.Media.MIME_TYPE,"Video/mp4");
-       contentValues.put(MediaStore.Video.Media.DATE_ADDED,System.currentTimeMillis() / 1000);
-       contentValues.put(MediaStore.Video.Media.DATE_TAKEN,System.currentTimeMillis());
+       contentValues.put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/" + "Folder");
+       contentValues.put(MediaStore.Video.Media.TITLE, filePrefix+System.currentTimeMillis());
+       contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, filePrefix+System.currentTimeMillis()+fileExtn);
+       contentValues.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
+       contentValues.put(MediaStore.Video.Media.DATE_ADDED, System.currentTimeMillis() / 1000);
+       contentValues.put(MediaStore.Video.Media.DATE_TAKEN, System.currentTimeMillis());
        Uri uri = getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues);
        File file = FileUtils.getFileFromUri(this,uri);
        filePath = file.getAbsolutePath();
@@ -1008,10 +1005,11 @@ private void VideoToGif(int startMs, int endMs) throws Exception {
   //      Toast.makeText(MainActivity.this,"Reverse_Method_called",Toast.LENGTH_SHORT).show();
 
         progressDialog.show();
+        final String filePath;
         String filePrefix = "reverse";
         String fileExtn = ".mp4";
 
-        final String filePath;
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 
             ContentValues valuesvideos = new ContentValues();
