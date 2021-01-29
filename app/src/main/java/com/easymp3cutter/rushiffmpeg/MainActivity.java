@@ -434,13 +434,13 @@ private void VideoToGif(int startMs, int endMs) throws Exception {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
         {
             ContentValues contentValues = new ContentValues();
-            contentValues.put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/" + "Folder");
-            contentValues.put(MediaStore.Video.Media.TITLE, filePrefix+System.currentTimeMillis());
-            contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, filePrefix+System.currentTimeMillis()+fileExtn);
-            contentValues.put(MediaStore.Video.Media.MIME_TYPE, "video/gif");
-            contentValues.put(MediaStore.Video.Media.DATE_ADDED, System.currentTimeMillis() /1000);
-            contentValues.put(MediaStore.Video.Media.DATE_TAKEN, System.currentTimeMillis());
-            Uri uri = getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues);
+            contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/" + "Folder");
+            contentValues.put(MediaStore.Images.Media.TITLE, filePrefix+System.currentTimeMillis());
+            contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, filePrefix+System.currentTimeMillis()+fileExtn);
+            contentValues.put(MediaStore.Images.Media.MIME_TYPE, "image/gif");
+            contentValues.put(MediaStore.Images.Media.DATE_ADDED, System.currentTimeMillis() /1000);
+            contentValues.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
+            Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
 
             File file = FileUtils.getFileFromUri(this,uri);
             filePath = file.getAbsolutePath();
@@ -457,7 +457,7 @@ private void VideoToGif(int startMs, int endMs) throws Exception {
             String cmd;
 
 
-            cmd ="-y -i  " +video_url+" -vf scale=512:-1 -an -ss 00:00:03 -to 00:00:10 "+" -vcodec gif -crf 0 -preset superfast " +filePath;
+            cmd ="-y -i  " +video_url+" -vf scale=512:-1 -an -ss 00:00:03 -to 00:00:05 "+" -vcodec gif -crf 0 -preset superfast " +filePath;
 
 
             long executionId = FFmpeg.executeAsync(cmd, new ExecuteCallback() {
