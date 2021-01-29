@@ -41,7 +41,7 @@
 
     <VideoView
         android:layout_below="@+id/relative1"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_above="@+id/relative"
         android:id="@+id/layout_movie_wrapper"/>
@@ -62,12 +62,10 @@
         >
 
         <ImageView
-            android:layout_centerInParent="true"
+            android:id="@+id/overlayimage"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="fitXY"
-            android:id="@+id/overlayimage"
-            />
+            android:scaleType="fitXY" />
     </RelativeLayout>
     <LinearLayout
 
@@ -303,7 +301,7 @@
                                 android:textAlignment="center"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="ScreenShot_Image"
+                                android:text="Extract_Image"
                                 android:textColor="@color/black"/>
                         </LinearLayout>
 
@@ -378,6 +376,56 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="High_Resolution"
+                        android:textColor="@color/black"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_margin="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    >
+
+                    <ImageButton
+                        android:id="@+id/videotogif"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center"
+                        android:background="@color/transparent"
+                        android:scaleType="fitXY"
+                        android:src="@drawable/gggg" />
+
+                    <TextView
+                        android:textAlignment="center"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Video_To_Gif"
+                        android:textColor="@color/black"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_margin="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    >
+
+                    <ImageButton
+                        android:id="@+id/trimVideo"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center"
+                        android:background="@color/transparent"
+                        android:scaleType="fitXY"
+                        android:src="@drawable/trimming" />
+
+                    <TextView
+                        android:textAlignment="center"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Trim_Video"
                         android:textColor="@color/black"/>
                 </LinearLayout>
 
