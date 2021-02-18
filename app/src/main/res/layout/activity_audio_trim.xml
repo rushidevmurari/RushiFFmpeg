@@ -22,8 +22,11 @@
             android:textColor="@color/black"
             android:layout_centerInParent="true"
             android:background="@color/transparent"
-            android:text="Select Audio"
+            android:text="Select Video"
             android:id="@+id/select"/>
+
+
+
 
 
 
