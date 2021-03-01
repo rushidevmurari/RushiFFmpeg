@@ -383,7 +383,8 @@
                                 android:textAlignment="center"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="Low_Resolution"
+                                android:textSize="@dimen/dp14"
+                                android:text="Set_360p"
                                 android:textColor="@color/white"/>
                         </LinearLayout>
 
@@ -407,7 +408,8 @@
                                 android:textAlignment="center"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="High_Resolution"
+                                android:textSize="@dimen/dp14"
+                                android:text="Set_720p"
                                 android:textColor="@color/white"/>
                         </LinearLayout>
                         <LinearLayout
@@ -728,7 +730,105 @@
                                 android:textColor="@color/white"/>
                         </LinearLayout>
 
+                        <LinearLayout
+                            android:layout_margin="10dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
 
+                            <ImageButton
+                                android:id="@+id/trimwithvintage"
+                                android:layout_width="50dp"
+                                android:layout_height="50dp"
+                                android:layout_gravity="center"
+                                android:background="@color/transparent"
+                                android:scaleType="fitXY"
+                                android:src="@drawable/trimming" />
+
+                            <TextView
+                                android:textAlignment="center"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/dp12"
+                                android:text="Trim_Vintage"
+                                android:textColor="@color/white"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_margin="10dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <ImageButton
+                                android:id="@+id/trimwithRotate"
+                                android:layout_width="50dp"
+                                android:layout_height="50dp"
+                                android:layout_gravity="center"
+                                android:background="@color/transparent"
+                                android:scaleType="fitXY"
+                                android:src="@drawable/trimming" />
+
+                            <TextView
+                                android:textAlignment="center"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/dp12"
+                                android:text="Trim_Rotate"
+                                android:textColor="@color/white"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_margin="10dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <ImageButton
+                                android:id="@+id/Brightness"
+                                android:layout_width="50dp"
+                                android:layout_height="50dp"
+                                android:layout_gravity="center"
+                                android:background="@color/transparent"
+                                android:scaleType="fitXY"
+                                android:src="@drawable/brightness" />
+
+                            <TextView
+                                android:textAlignment="center"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/dp12"
+                                android:text="Set_Brightness"
+                                android:textColor="@color/white"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_margin="10dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <ImageButton
+                                android:id="@+id/jitter"
+                                android:layout_width="50dp"
+                                android:layout_height="50dp"
+                                android:layout_gravity="center"
+                                android:background="@color/transparent"
+                                android:scaleType="fitXY"
+                                android:src="@drawable/wide" />
+
+                            <TextView
+                                android:textAlignment="center"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/dp12"
+                                android:text="Full_WideAngle"
+                                android:textColor="@color/white"/>
+                        </LinearLayout>
 
                     </LinearLayout>
                 </HorizontalScrollView>

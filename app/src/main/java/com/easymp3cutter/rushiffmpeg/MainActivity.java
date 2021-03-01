@@ -40,7 +40,7 @@ import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_SUCCESS;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ImageButton reverse,slow,fast,videoToAudio,RemoveAudio,ExtractImage,CompressVideo,LowResolution,HighResolution,VideoToGif,TrimVideo,AddVintage,AddBlackWhite,AddFadeInOut,VerticalFlip,HFlip,Rotation90,Rotation180,Rotation270,Blur4by3,Blur3by2,Blur5by4;
+    private ImageButton reverse,slow,fast,videoToAudio,RemoveAudio,ExtractImage,CompressVideo,LowResolution,HighResolution,VideoToGif,TrimVideo,AddVintage,AddBlackWhite,AddFadeInOut,VerticalFlip,HFlip,Rotation90,Rotation180,Rotation270,Blur4by3,Blur3by2,Blur5by4,TrimWithVintage,TrimWithRotate,Brightness,Wide_Angle;
     private Button selectVideo,selectImage;
     private TextView tvLeft,tvRight;
     private ProgressDialog progressDialog;
@@ -98,6 +98,10 @@ public class MainActivity extends AppCompatActivity {
         Blur4by3 = (ImageButton) findViewById(R.id.blurr);
         Blur3by2 = (ImageButton) findViewById(R.id.blurrr);
         Blur5by4 = (ImageButton) findViewById(R.id.blurrrr);
+        TrimWithVintage = (ImageButton) findViewById(R.id.trimwithvintage);
+        TrimWithRotate = (ImageButton) findViewById(R.id.trimwithRotate);
+        Brightness = (ImageButton) findViewById(R.id.Brightness);
+        Wide_Angle = (ImageButton) findViewById(R.id.jitter);
         videoView = (VideoView) findViewById(R.id.layout_movie_wrapper);
         imageView = (ImageView) findViewById(R.id.overlayimage);
 
@@ -504,7 +508,73 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        TrimWithVintage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (video_url != null)
+                {
+                    try {
+                        TrimWithVintage(rangeSeekBar.getSelectedMinValue().intValue() * 1000,rangeSeekBar.getSelectedMaxValue().intValue() * 1000);
 
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        Toast.makeText(MainActivity.this,e.toString(),Toast.LENGTH_SHORT).show();
+                    }
+                }else
+                    Toast.makeText(MainActivity.this,"Please_Upload_video", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        TrimWithRotate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (video_url != null)
+                {
+                    try {
+                        TrimWithRotate(rangeSeekBar.getSelectedMinValue().intValue() * 1000,rangeSeekBar.getSelectedMaxValue().intValue() * 1000);
+                    }catch (Exception e)
+                    {
+                        e.printStackTrace();
+                        Toast.makeText(MainActivity.this,e.toString(),Toast.LENGTH_SHORT).show();
+                    }
+                }else
+                    Toast.makeText(MainActivity.this,"Please_Upload_Video",Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        Brightness.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (video_url != null)
+                {
+                    try {
+                        Brightness(rangeSeekBar.getSelectedMinValue().intValue() * 1000,rangeSeekBar.getSelectedMaxValue().intValue() * 1000);
+                    }catch (Exception e)
+                    {
+                        e.printStackTrace();
+                        Toast.makeText(MainActivity.this,e.toString(),Toast.LENGTH_SHORT).show();
+                    }
+                }else
+                    Toast.makeText(MainActivity.this,"Please_Upload_Video",Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        Wide_Angle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (video_url != null)
+                {
+                    try {
+                        Wide_Angle(rangeSeekBar.getSelectedMinValue().intValue() * 1000,rangeSeekBar.getSelectedMaxValue().intValue() * 1000);
+                    }catch (Exception e)
+                    {
+                        e.printStackTrace();
+                        Toast.makeText(MainActivity.this,e.toString(),Toast.LENGTH_SHORT).show();
+                    }
+                }else
+                    Toast.makeText(MainActivity.this,"Please_Upload_Video",Toast.LENGTH_SHORT).show();
+            }
+        });
 
         videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
 
@@ -561,6 +631,255 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+    private void Wide_Angle(int starts,int endMs) throws Exception{
+        progressDialog.show();
+        final String filePath;
+        String filePrefix = "Wide_Angle";
+        String fileExtn = ".mp4";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+        {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/" + "Folder");
+            contentValues.put(MediaStore.Video.Media.TITLE, filePrefix+System.currentTimeMillis());
+            contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, filePrefix+System.currentTimeMillis() +fileExtn);
+            contentValues.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
+            contentValues.put(MediaStore.Video.Media.DATE_ADDED, System.currentTimeMillis() /1000);
+            contentValues.put(MediaStore.Video.Media.DATE_TAKEN, System.currentTimeMillis());
+            Uri uri = getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues);
+
+            File file = FileUtils.getFileFromUri(this,uri);
+
+            filePath = file.getAbsolutePath();
+        }else
+        {
+            File dest = new File(new File(app_folder), filePrefix + fileExtn);
+            int fileNo = 0;
+
+            while (dest.exists())
+            {
+                fileNo++;
+                dest = new File(new File(app_folder), filePrefix + fileNo + fileExtn);
+            }
+            filePath = dest.getAbsolutePath();
+        }
+
+      //  drawbox=x=3*iw/4:y=ih/2:w=1:h=1:color=green,v360=input=e:output=ball
+        String cmd;
+
+    /*    cmd="-y -i " +video_url+"  -vf split=6[a0][a1][a2][a3][a4][a5];[a0]crop=h=ih/6:y=0[b0];[a1]tpad=1,crop=h=ih/6:y=ih/6[b1];" +
+                "[a2]tpad=2,crop=h=ih/6:y=2*ih/6[b2];[a3]tpad=3,crop=h=ih/6:y=3*ih/6[b3];[a4]tpad=4,crop=h=ih/6:y=4*ih/6[b4];" +
+                "[a5]tpad=5,crop=h=ih/6:y=5*ih/6[b5];[b0][b1][b2][b3][b4][b5]vstack=6 -b:v 2097k -b:a 128k -ac 2 -ar 22050 "+" -vcodec mpeg4 -crf 0 -preset superfast "+filePath;
+
+
+     */
+
+
+        cmd="-y -i " +video_url+" -vf lenscorrection=k1=-0.56:k2=0.3 -b:v 2097k -b:a 128k -ac 2 -ar 22050 "+" -vcodec mpeg4 -crf 0 -preset superfast "+filePath;
+
+      //  cmd="-y -i " +video_url+"  -vf format=gbrp,lagfun=decay=%DECAY%:planes=1 -b:v 2097k -b:a 128k -ac 2 -ar 22050 "+" -vcodec mpeg4 -crf 0 -preset superfast "+filePath;
+
+        long executionId = FFmpeg.executeAsync(cmd, new ExecuteCallback() {
+            @Override
+            public void apply(long executionId, int returnCode) {
+                if (returnCode == RETURN_CODE_SUCCESS) {
+                    videoView.setVideoURI(Uri.parse(filePath));
+
+                    video_url = filePath;
+
+                    videoView.start();
+                    progressDialog.dismiss();
+                }else if (returnCode == RETURN_CODE_SUCCESS)
+                {
+                    Log.i(Config.TAG,"Async Command Execution Cancel By User");
+                }else
+                {
+                    Log.i(Config.TAG,String.format("Async Command Execution Failed By returnCode=%d.",returnCode));
+                }
+            }
+        });
+    }
+
+    private void Brightness(int startMs,int endMs) throws Exception{
+        progressDialog.show();
+        final String filePath;
+        String filePrefix = "Brightness";
+        String fileExtn = ".mp4";
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+        {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/" + "Folder");
+            contentValues.put(MediaStore.Video.Media.TITLE, filePrefix+System.currentTimeMillis());
+            contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, filePrefix+System.currentTimeMillis() +fileExtn);
+            contentValues.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
+            contentValues.put(MediaStore.Video.Media.DATE_ADDED, System.currentTimeMillis() /1000);
+            contentValues.put(MediaStore.Video.Media.DATE_TAKEN, System.currentTimeMillis());
+            Uri uri = getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,contentValues);
+
+            File file = FileUtils.getFileFromUri(this,uri);
+
+            filePath = file.getAbsolutePath();
+        }else
+        {
+            File dest = new File(new File(app_folder), filePrefix + fileExtn);
+            int fileNo = 0;
+
+            while (dest.exists())
+            {
+                fileNo++;
+                dest = new File(new File(app_folder), filePrefix + fileNo + fileExtn);
+            }
+            filePath = dest.getAbsolutePath();
+        }
+        String cmd;
+
+        cmd = " -y -i " +video_url+ " -vf curves=all='0/0 0.5/1 1/1' -b:v 2097k -b:a 128k -ac 2 -ar 22050 "+" -vcodec mpeg4 -crf 0 -preset superfast "+filePath;
+
+        //   String[] Command = {"-ss", "" + startMs / 1000, "-y", "-i", video_url,"-vf", "eq=brightness=0.06", "saturation=2", "-t", "" + (endMs - startMs) / 1000,"-vcodec", "mpeg4", "-b:v", "2097152", "-b:a", "48000", "-ac", "2", "-ar", "22050", filePath};
+
+        long executionId = FFmpeg.executeAsync(cmd, new ExecuteCallback() {
+            @Override
+            public void apply(long executionId, int returnCode) {
+                if (returnCode == RETURN_CODE_SUCCESS)
+                {
+                    videoView.setVideoURI(Uri.parse(filePath));
+                    video_url = filePath;
+                    videoView.start();
+                    progressDialog.dismiss();
+                }else if (returnCode == RETURN_CODE_CANCEL)
+                {
+                    Log.i(Config.TAG,"Async Command Execution Cancel By User");
+                }else
+                {
+                    Log.i(Config.TAG,String.format("Async Command Execution Failed By returnCode=%d", returnCode));
+                }
+            }
+        });
+    }
+
+    private void TrimWithRotate(int startMs, int endMs) throws Exception{
+
+        progressDialog.show();
+        final String filePath;
+        String filePrefix = "TrimWithRotate";
+        String fileExtn = ".mp4";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+        {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/" + "TrimWithRotate");
+            contentValues.put(MediaStore.Video.Media.TITLE, filePrefix+System.currentTimeMillis());
+            contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, filePrefix+System.currentTimeMillis() +fileExtn);
+            contentValues.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
+            contentValues.put(MediaStore.Video.Media.DATE_ADDED, System.currentTimeMillis() /1000);
+            contentValues.put(MediaStore.Video.Media.DATE_TAKEN, System.currentTimeMillis());
+            Uri uri = getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues);
+            File file = FileUtils.getFileFromUri(this,uri);
+
+            filePath = file.getAbsolutePath();
+        }else
+        {
+            File dest = new File(new File(app_folder), filePrefix + fileExtn);
+            int fileNo = 0;
+
+            while (dest.exists())
+            {
+                fileNo++;
+                dest = new File(new File(app_folder), filePrefix + fileNo + fileExtn);
+
+            }
+            filePath = dest.getAbsolutePath();
+        }
+        String[] Command = {"-ss", "" + startMs / 1000, "-y", "-i", video_url,"-vf", "transpose=1", "-t", "" + (endMs - startMs) / 1000,"-vcodec", "mpeg4", "-b:v", "2097152", "-b:a", "48000", "-ac", "2", "-ar", "22050", filePath};
+
+
+        long executionId = FFmpeg.executeAsync(Command, new ExecuteCallback() {
+            @Override
+            public void apply(long executionId, int returnCode) {
+                if (returnCode == RETURN_CODE_SUCCESS)
+                {
+                    videoView.setVideoURI(Uri.parse(filePath));
+                    video_url = filePath;
+                    videoView.start();
+                    progressDialog.dismiss();
+
+                }
+
+
+                else if (returnCode == RETURN_CODE_CANCEL)
+                {
+                    Log.i(Config.TAG,"Async Command Execution Cancel By User");
+                }else
+                {
+                    Log.i(Config.TAG,String.format("Async Command Execution Failed By returnCode=%d", returnCode));
+                }
+            }
+        });
+
+    }
+
+    private void TrimWithVintage(int startMs, int endMs) throws Exception {
+
+        progressDialog.show();
+        final String filePath;
+        String filePrefix = "TrimWithVintage";
+        String fileExtn = ".mp4";
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+        {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/" + "Folder");
+            contentValues.put(MediaStore.Video.Media.TITLE, filePrefix+System.currentTimeMillis());
+            contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, filePrefix+System.currentTimeMillis()+fileExtn);
+            contentValues.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
+            contentValues.put(MediaStore.Video.Media.DATE_ADDED, System.currentTimeMillis() /1000);
+            contentValues.put(MediaStore.Video.Media.DATE_TAKEN, System.currentTimeMillis());
+            Uri uri = getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues);
+
+            File file = FileUtils.getFileFromUri(this, uri);
+            filePath = file.getAbsolutePath();
+        }
+        else {
+            File dest = new File(new File(app_folder), filePrefix + fileExtn);
+            int fileNo = 0;
+
+            while (dest.exists()) {
+                fileNo++;
+                dest = new File(new File(app_folder), filePrefix + fileNo + fileExtn);
+
+            }
+            filePath = dest.getAbsolutePath();
+
+        }
+
+        //  Trim video With any Perform any Opration..
+            String[] Command = {"-ss", "" + startMs / 1000, "-y", "-i", video_url,"-vf", "curves=vintage", "-t", "" + (endMs - startMs) / 1000,"-vcodec", "mpeg4", "-b:v", "2097152", "-b:a", "48000", "-ac", "2", "-ar", "22050", filePath};
+
+        //  cmd = "-y -i" +video_url+ " -ss -ac 2 -ar 22050 " +startMs/1000+ "-to" +(endMs - 1000) / 1000+ "-b:v 2097k -vcodec mpeg4 -crf 0 -preset superfast" +filePath;
+
+      //  String[] Command = {"-ss", "" + startMs / 1000, "-y", "-i", video_url, "-t", "" + (endMs - startMs) / 1000,"-vcodec", "mpeg4", "-b:v", "2097152", "-b:a", "48000", "-ac", "2", "-ar", "22050", filePath};
+
+        long executionId = FFmpeg.executeAsync(Command, new ExecuteCallback() {
+            @Override
+            public void apply(long executionId, int returnCode) {
+                if (returnCode == RETURN_CODE_SUCCESS)
+                {
+                    videoView.setVideoURI(Uri.parse(filePath));
+
+                    video_url = filePath;
+
+                    videoView.start();
+
+                    progressDialog.dismiss();
+                }else if (returnCode == RETURN_CODE_CANCEL)
+                {
+                    Log.i(Config.TAG,"Async Command Execution Cancel By User");
+                }else
+                {
+                    Log.i(Config.TAG,String.format("Async Command Execution Cancel By returnCode=%d.",returnCode));
+                }
+            }
+        });
+    }
+
     private void Blur5by4(int startMs, int endMs) throws Exception {
         progressDialog.show();
         final String filePath;
@@ -717,7 +1036,7 @@ public class MainActivity extends AppCompatActivity {
         }
         String cmd;
 
-        cmd="-y -i " +video_url+" -vf 'split[original][copy];[copy]scale=ih*4/3:-1,crop=h=iw*3/4,gblur=sigma=20[blurred];[blurred][original]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2' "+"-b:v 2097k -vcodec mpeg4 -crf 0 -preset superfast " +filePath;
+        cmd="-y -i " +video_url+" -vf 'split[original][copy];[copy]scale=ih*4/3:-1,crop=h=iw*3/4,gblur=sigma=20[blurred];[blurred][original]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2' "+"-b:v 2097k -vcodec mpeg4 -crf 0 -preset ultrafast " +filePath;
         long executionId = FFmpeg.executeAsync(cmd, new ExecuteCallback() {
             @Override
             public void apply(long executionId, int returnCode) {
@@ -1231,9 +1550,12 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
-            String[] Command = {"-ss", "" + startMs / 1000, "-y", "-i", video_url, "-t", "" + (endMs - startMs) / 1000,"-vcodec", "mpeg4", "-b:v", "2097152", "-b:a", "48000", "-ac", "2", "-ar", "22050", filePath};
+      //  Trim video With any Perform any Opration..
+        //    String[] Command = {"-ss", "" + startMs / 1000, "-y", "-i", video_url,"-vf", "curves=vintage", "-t", "" + (endMs - startMs) / 1000,"-vcodec", "mpeg4", "-b:v", "2097152", "-b:a", "48000", "-ac", "2", "-ar", "22050", filePath};
 
           //  cmd = "-y -i" +video_url+ " -ss -ac 2 -ar 22050 " +startMs/1000+ "-to" +(endMs - 1000) / 1000+ "-b:v 2097k -vcodec mpeg4 -crf 0 -preset superfast" +filePath;
+
+        String[] Command = {"-ss", "" + startMs / 1000, "-y", "-i", video_url, "-t", "" + (endMs - startMs) / 1000,"-vcodec", "mpeg4", "-b:v", "2097152", "-b:a", "48000", "-ac", "2", "-ar", "22050", filePath};
 
             long executionId = FFmpeg.executeAsync(Command, new ExecuteCallback() {
                 @Override
@@ -1345,7 +1667,7 @@ public class MainActivity extends AppCompatActivity {
             filePath = dest.getAbsolutePath();
         }
         String cmd;
-        cmd = " -y -i " +video_url+ " -r 60 -s 640*1136"+" -b:v 2097k -vcodec mpeg4 -crf 0 -preset superfast "+filePath;
+        cmd = " -y -i " +video_url+ " -r 25 -s 720*1280"+" -b:v 2097k -vcodec mpeg4 -crf 0 -preset superfast "+filePath;
 
         long executionId = FFmpeg.executeAsync(cmd, new ExecuteCallback() {
             @Override
@@ -1552,11 +1874,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void fastforward(int startMs, int endMs) throws Exception {
-          /* startMs is the starting time, from where we have to apply the effect.
-  	         endMs is the ending time, till where we have to apply effect.
-   	         For example, we have a video of 5min and we only want to fast forward a part of video
-  	         say, from 1:00 min to 2:00min, then our startMs will be 1000ms and endMs will be 2000ms.
-		 */
 
         progressDialog.show();
 
@@ -1565,10 +1882,7 @@ public class MainActivity extends AppCompatActivity {
         String filePrefix = "fastforward";
         String fileExtn = ".mp4";
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            /*
-            With introduction of scoped storage in Android Q the primitive method gives error
-            So, it is recommended to use the below method to create a video file in storage.
-             */
+
             ContentValues valuesvideos = new ContentValues();
             valuesvideos.put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/" + "Folder");
             valuesvideos.put(MediaStore.Video.Media.TITLE, filePrefix+System.currentTimeMillis());
@@ -1621,6 +1935,7 @@ public class MainActivity extends AppCompatActivity {
                     videoView.start();
                     //remove the progress dialog
                     progressDialog.dismiss();
+                    Toast.makeText(MainActivity.this,"Video_Save:-Internal Storage/Movies/Folder",Toast.LENGTH_LONG).show();
                 } else if (returnCode == RETURN_CODE_CANCEL) {
                     Log.i(Config.TAG, "Async command execution cancelled by user.");
                 } else {
@@ -1634,7 +1949,6 @@ public class MainActivity extends AppCompatActivity {
 
   // Toast.makeText(MainActivity.this,"slow_motion_Method_Called",Toast.LENGTH_SHORT).show();
         progressDialog.show();
-
         final String filePath;
         String filePrefix = "slowmotion";
         String fileExtn = ".mp4";
@@ -1758,8 +2072,6 @@ public class MainActivity extends AppCompatActivity {
         String filePrefix = "RemoveAudio";
         String fileExtn = ".mp4";
 
-
-
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
        ContentValues contentValues = new ContentValues();
        contentValues.put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/" + "Folder");
@@ -1787,7 +2099,7 @@ public class MainActivity extends AppCompatActivity {
         }
         String cmd;
 
-        cmd = " -y -i " +video_url+ " -an  "+"-b:v 2097k -vcodec mpeg4 -crf 0 -preset superfast "+filePath;
+        cmd = " -y -i " +video_url+ " -an -b:v 48000 "+" -vcodec mpeg4 -crf 0 -preset superfast "+filePath;
 
 
         long executionId = FFmpeg.executeAsync(cmd, new ExecuteCallback() {
@@ -1818,7 +2130,6 @@ public class MainActivity extends AppCompatActivity {
         final String filePath;
         String filePrefix = "reverse";
         String fileExtn = ".mp4";
-
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 
@@ -1853,11 +2164,14 @@ public class MainActivity extends AppCompatActivity {
                     video_url = filePath;
                     videoView.start();
                     progressDialog.dismiss();
+                    Toast.makeText(MainActivity.this, "/storage/emulated/0/Movies",Toast.LENGTH_LONG).show();
+
                 } else if (returnCode == RETURN_CODE_CANCEL) {
                     Log.i(Config.TAG, "Async command execution cancelled by user.");
-                } else {
+                } else  {
                     Log.i(Config.TAG, String.format("Async command execution failed with returnCode=%d.", returnCode));
                 }
+
             }
         });
     }
